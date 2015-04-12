@@ -3,37 +3,6 @@ from bs4 import BeautifulSoup
 import xlsxwriter
 
 
-
-
-# Create an new Excel file and add a worksheet.
-workbook = xlsxwriter.Workbook('demo.xlsx')
-worksheet = workbook.add_worksheet()
-
-# Widen the first column to make the text clearer.
-worksheet.set_column('A:C', 20)
-
-# Add a bold format to use to highlight cells.
-bold = workbook.add_format({'bold': True})
-
-# Write some simple text.
-worksheet.write('B1', 'Hello')
-
-# Text with formatting.
-worksheet.write('A2', 'World', bold)
-
-# Write some numbers, with row/column notation.
-worksheet.write(2, 1, 123)
-worksheet.write(3, 0, 123.456)
-
-# Insert an image.
-worksheet.insert_image('B5', 'logo.png')
-
-workbook.close()
-
-
-
-
-
 req = requests.get("http://www.houzz.com/professionals/interior-designer/c/Washington--DC/p/0")
 
 soup = BeautifulSoup(req.content)
@@ -42,19 +11,40 @@ soup = BeautifulSoup(req.content)
 
 totalRow = soup.find_all("div", { "class" : "whiteCard" })
 
-customList = []
 
-for sr in totalRow:
+# Create an new Excel file.
+dataBook = xlsxwriter.Workbook('demo.xlsx')
+dataRow = dataBook.add_worksheet()
+
+# Widen the first column to make the text clearer.
+dataRow.set_column('A:B', 20)
+dataRow.set_column('C:C', 60)
+
+# Add a bold format to use to highlight cells.
+bold = dataBook.add_format({'bold': True})
+
+
+dataRow.write('A1', 'Title', bold)
+dataRow.write('B1', 'Phone', bold)
+dataRow.write('C1', 'Meta', bold)
+
+
+
+for idx, sr in enumerate(totalRow):
+
+	idx += 2
 	title = sr.find_all("a", { "class" : 'pro-title' })[0].text
 	phone = sr.find_all("span", { "class" : 'pro-phone' })[0].text
+	description = sr.find_all("div", { "class" : 'pro-description' })[0].text
+	meta = sr.find_all("div", { "class" : 'pro-meta' })[0].text
 
-	customList.append([title, phone])
+	dataRow.write('A{}'.format(idx), title)
+	dataRow.write('B{}'.format(idx), phone)
+	dataRow.write('C{}'.format(idx), meta)
 
 
 
+dataBook.close()
 
-
-print(customList)
-print(len(customList))
 
  
