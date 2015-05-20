@@ -54,7 +54,7 @@ for i in range(int(totalPage)):
 		dataRow.write('B{}'.format(rowID), phone)
 		dataRow.write('C{}'.format(rowID), meta)
 
-	print "{} Page Complete...".format((i+1))
+	print "Page {} Complete...".format((i+1))
 
 
 dataBook.close()
