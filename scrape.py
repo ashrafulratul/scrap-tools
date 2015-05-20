@@ -3,17 +3,16 @@ from bs4 import BeautifulSoup
 import xlsxwriter
 
 
-req = requests.get("http://www.houzz.com/professionals/interior-designer/c/Washington--DC/p/0")
-
-soup = BeautifulSoup(req.content)
-
-# print(soup.prettify())
-
-totalRow = soup.find_all("div", { "class" : "whiteCard" })
+# User Input
+url = raw_input("Page link:") or ""
+totalPage = raw_input("Total Page[1]:") or 1
+rowDiff = raw_input("Per Page Data[15]:") or 15
+file_name = raw_input("Saved File Name:")
+# -----
 
 
 # Create an new Excel file.
-dataBook = xlsxwriter.Workbook('demo.xlsx')
+dataBook = xlsxwriter.Workbook('upload/{}.xlsx'.format(file_name))
 dataRow = dataBook.add_worksheet()
 
 # Widen the first column to make the text clearer.
@@ -30,18 +29,32 @@ dataRow.write('C1', 'Meta', bold)
 
 
 
-for idx, sr in enumerate(totalRow):
 
-	idx += 2
-	title = sr.find_all("a", { "class" : 'pro-title' })[0].text
-	phone = sr.find_all("span", { "class" : 'pro-phone' })[0].text
-	description = sr.find_all("div", { "class" : 'pro-description' })[0].text
-	meta = sr.find_all("div", { "class" : 'pro-meta' })[0].text
+rowID = 1
+for i in range(int(totalPage)):
 
-	dataRow.write('A{}'.format(idx), title)
-	dataRow.write('B{}'.format(idx), phone)
-	dataRow.write('C{}'.format(idx), meta)
+	req = requests.get("{}/p/{}".format(str(url), (i*rowDiff)))
 
+	# req = requests.get("http://www.houzz.com/professionals/interior-designer/c/Washington--DC/p/0")
+
+	soup = BeautifulSoup(req.content)
+
+	totalRow = soup.find_all("div", { "class" : "whiteCard" })
+	# print(soup.prettify())
+
+	for idx, sr in enumerate(totalRow):
+
+		rowID += 1
+		title = sr.find_all("a", { "class" : 'pro-title' })[0].text
+		phone = sr.find_all("span", { "class" : 'pro-phone' })[0].text
+		description = sr.find_all("div", { "class" : 'pro-description' })[0].text
+		meta = sr.find_all("div", { "class" : 'pro-meta' })[0].text
+
+		dataRow.write('A{}'.format(rowID), title)
+		dataRow.write('B{}'.format(rowID), phone)
+		dataRow.write('C{}'.format(rowID), meta)
+
+	print "{} Page Complete...".format((i+1))
 
 
 dataBook.close()
